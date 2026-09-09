@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controller · Display · Motor — Compatibility Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div>
+      <div class="brand-tag"><span class="dot"></span>STORES &amp; AFS · PARTS REFERENCE</div>
+      <h1>Controller · Display · Motor Map</h1>
+      <p class="sub">Look up the correct controller, motor and display combination for every bike model — before you open a service ticket or pack a spare.</p>
+    </div>
+    <div class="stat-row" id="statRow"></div>
+  </div>
+</header>
+
+<div class="toolbar-wrap">
+  <div class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="searchInput" placeholder="Search model, controller part no., motor, display…" autocomplete="off">
+    </div>
+    <select id="marketFilter"></select>
+    <select id="statusFilter"></select>
+    <select id="prodFilter"></select>
+    <label class="toggle-pill" id="currentPill">
+      <input type="checkbox" id="currentOnly">
+      Current parts only
+    </label>
+    <button class="clear-btn" id="clearBtn">Reset filters</button>
+    <label class="toggle-pill" id="editPill" style="margin-left:auto;">
+      <input type="checkbox" id="editMode">
+      Edit mode
+    </label>
+  </div>
+  <div class="result-line">
+    <span id="resultCount"></span>
+    <div class="legend">
+      <span><span class="swatch" style="background:#C97A1A"></span>Current</span>
+      <span><span class="swatch" style="background:#9C4A38"></span>Previous</span>
+      <span><span class="swatch" style="background:#2B6E6B"></span>Existing</span>
+      <span><span class="swatch" style="background:#8A8579"></span>TBD</span>
+      <span><span class="swatch" style="background:#3D7A4A"></span>Active (production)</span>
+      <span><span class="swatch" style="background:#8A8579"></span>Inactive (production)</span>
+      <span id="syncStatus" class="sync-status"></span>
+    </div>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<div id="addModelBar" class="add-model-bar" style="display:none;">
+  <button id="addModelBtn" class="add-model-btn">+ Add new bike model</button>
+</div>
+
+<footer>
+  Source: Controller, Display &amp; Motor Map workbook. Tap any part number to copy it. Groups auto-expand when a search or filter narrows results. Edit mode is restricted to an authorized email + password — everyone else has view-only access.
+</footer>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<!-- Login modal (edit-mode gate) -->
+<div class="modal-overlay" id="loginOverlay">
+  <div class="modal-box modal-box-sm" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal-head">
+      <h3 id="loginTitle">Sign in to edit</h3>
+      <button class="modal-close" id="loginClose" aria-label="Close">&times;</button>
+    </div>
+    <form id="loginForm">
+      <div class="form-grid form-grid-1">
+        <label>Email<input type="email" name="email" required autocomplete="username"></label>
+        <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+      </div>
+      <div class="login-error" id="loginError" style="display:none;">Incorrect email or password.</div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="loginCancel">Cancel</button>
+        <button type="submit" class="btn-primary">Unlock edit mode</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add / edit row modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h3 id="modalTitle">Add part combination</h3>
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    </div>
+    <form id="rowForm">
+      <div class="form-grid">
+        <label>Bike Model<input type="text" name="Bike Model" required></label>
+        <label>Version / Variant<input type="text" name="Version / Variant"></label>
+        <label>Wheel Size<input type="text" name="Wheel Size" placeholder="e.g. 27.5&quot;"></label>
+        <label>Market
+          <select name="Market">
+            <option value="IND">IND</option>
+            <option value="SPAIN">SPAIN</option>
+            <option value="IND/SPAIN">IND/SPAIN</option>
+            <option value="General">General</option>
+          </select>
+        </label>
+        <label>Status
+          <select name="Status">
+            <option value="Current">Current</option>
+            <option value="Previous">Previous</option>
+            <option value="Existing">Existing</option>
+            <option value="TBD">TBD</option>
+          </select>
+        </label>
+        <label>Production Status
+          <select name="Production Status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </label>
+        <label>Controller Part No.<input type="text" name="Controller Part No." required></label>
+        <label>Connector / Hardware Variant<input type="text" name="Connector / Hardware Variant"></label>
+        <label>Motor Model<input type="text" name="Motor Model"></label>
+        <label>Motor Voltage<input type="text" name="Motor Voltage" placeholder="e.g. 36V"></label>
+        <label>NTC
+          <select name="NTC">
+            <option value="NTC">NTC</option>
+            <option value="NON-NTC">NON-NTC</option>
+            <option value="NTC & NON-NTC">NTC &amp; NON-NTC</option>
+            <option value="TBD">TBD</option>
+          </select>
+        </label>
+        <label>Compatible Display Model<input type="text" name="Compatible Display Model"></label>
+        <label>Battery Voltage<input type="text" name="Battery Voltage" placeholder="e.g. 36V"></label>
+        <label>Max Current<input type="text" name="Max Current" placeholder="e.g. 13A"></label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="modalCancel">Cancel</button>
+        <button type="submit" class="btn-primary">Save entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
